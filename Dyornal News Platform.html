@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dyornal by Shun</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Importing Tabloid/Streetwear Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --tabloid-red: #da0000;
+            --tabloid-blue: #12348c;
+            --tabloid-yellow: #fde015;
+            --border-heavy: 6px solid #000;
+            --border-med: 3px solid #000;
+            --border-light: 1px solid #000;
+        }
+
+        body {
+            background-color: #e5e5e5;
+            font-family: 'Oswald', sans-serif;
+            color: #000;
+            overflow-x: hidden;
+        }
+        
+        /* Typography Classes */
+        .font-headline { font-family: 'Anton', sans-serif; }
+        .font-subhead { font-family: 'Oswald', sans-serif; }
+        .font-body { font-family: 'PT Serif', serif; }
+
+        .main-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 20px auto;
+            background: #fff;
+            border: var(--border-heavy);
+            box-shadow: 10px 10px 0px rgba(0,0,0,1);
+            position: relative;
+        }
+
+        /* Top Dateline */
+        .dateline {
+            border-bottom: var(--border-med);
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-items: center;
+        }
+
+        /* Header Area */
+        .header-banner {
+            border-bottom: var(--border-heavy);
+            position: relative;
+            padding: 10px 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .logo-text {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(6rem, 15vw, 12rem);
+            color: var(--tabloid-red);
+            line-height: 0.8;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .by-shun-badge {
+            background-color: var(--tabloid-blue);
+            color: white;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: clamp(1rem, 3vw, 2rem);
+            padding: 5px 20px;
+            border: var(--border-med);
+            transform: rotate(-3deg);
+            margin-top: -20px;
+            z-index: 3;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-bottom: var(--border-heavy);
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-right: 2px solid #333;
+        }
+        .nav-btn:hover { background-color: var(--tabloid-red); color: white; }
+        .nav-btn.right-align { border-right: none; border-left: 2px solid #333; }
+
+        /* Grid Layouts */
+        .tabloid-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            border-bottom: var(--border-heavy);
+        }
+        @media (min-width: 768px) {
+            .tabloid-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Sections & Borders */
+        .col-left { border-right: var(--border-heavy); }
+        .article-block { border-bottom: var(--border-med); padding: 15px; }
+        .article-block:last-child { border-bottom: none; }
+        
+        .promo-banner {
+            background-color: var(--tabloid-red);
+            color: white;
+            padding: 10px;
+            text-transform: uppercase;
+            border-top: var(--border-heavy);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Sticker / Starburst */
+        .sticker-wrapper {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            z-index: 10;
+            transform: rotate(15deg);
+        }
+        .sticker {
+            background: var(--tabloid-yellow);
+            color: #000;
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            padding: 15px 10px;
+            font-size: 1.5rem;
+            line-height: 1;
+            text-align: center;
+            border: var(--border-med);
+            box-shadow: 3px 3px 0 #000;
+        }
+        
+        /* Views */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: punchIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes punchIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Forms & Inputs */
+        .brutal-input {
+            width: 100%;
+            border: var(--border-med);
+            padding: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            background: #f4f4f4;
+            margin-top: 5px;
+        }
+        .brutal-input:focus { outline: none; background: #fff; border-color: var(--tabloid-red); }
+        
+        .brutal-btn {
+            background: #000;
+            color: #fff;
+            border: var(--border-med);
+            padding: 10px 20px;
+            font-family: 'Anton', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--tabloid-red);
+            transition: transform 0.1s;
+        }
+        .brutal-btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--tabloid-red); }
+        .brutal-btn.red { background: var(--tabloid-red); box-shadow: 4px 4px 0 #000; }
+        .brutal-btn.red:hover { box-shadow: 2px 2px 0 #000; }
+        
+        .article-body-format {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            font-size: 1.1rem;
+        }
+
+        /* Loader */
+        .loader {
+            border: 5px solid #000;
+            border-top: 5px solid var(--tabloid-red);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Modals */
+        .modal-overlay {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #fff;
+            border: var(--border-heavy);
+            box-shadow: 10px 10px 0 var(--tabloid-red);
+        }
+        
+        /* Text selection */
+        ::selection { background: var(--tabloid-yellow); color: #000; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="main-container">
+        
+        <!-- DATELINE -->
+        <div class="dateline">
+            <div><span class="text-[var(--tabloid-red)] mr-2">▶</span> <span id="current-date">OCTOBER 2026</span></div>
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-star"></i>
+                THE REALEST DROP
+                <i class="ph-fill ph-star"></i>
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="header-banner">
+            <h1 class="logo-text">Dyornal</h1>
+            <div class="by-shun-badge">BY SHUN</div>
+            
+            <!-- Fake promo banner embedded in header -->
+            <div class="absolute bottom-0 left-0 w-full bg-[var(--tabloid-blue)] text-white p-2 border-t-[3px] border-black flex justify-between items-center px-4 overflow-hidden">
+                <div class="font-headline text-2xl uppercase tracking-wide z-10 whitespace-nowrap">IS THIS PLATFORM VALID??? <span class="font-subhead italic text-sm normal-case ml-2 text-yellow-300">but we keep it real tho</span></div>
+                <div class="hidden md:block w-32 h-32 bg-[var(--tabloid-red)] rounded-full absolute -right-10 -bottom-10 border-4 border-black z-0"></div>
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav-bar">
+            <div class="flex">
+                <div class="nav-btn" onclick="navigateTo('home')">Front Page</div>
+                <div class="nav-btn text-[var(--tabloid-yellow)]" onclick="navigateTo('editor')">Drop Info</div>
+            </div>
+            <div class="nav-btn right-align flex items-center bg-[var(--tabloid-red)]" onclick="openProfileModal()">
+                <i class="ph-bold ph-user mr-2"></i> <span id="nav-username">LOG IN</span>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="min-h-[600px] bg-white relative">
+            
+            <!-- Global Loader -->
+            <div id="global-loader" class="absolute inset-0 z-50 bg-white flex flex-col justify-center items-center">
+                <div class="loader mb-4"></div>
+                <p class="font-headline text-3xl uppercase tracking-wide">Fetching the Drop...</p>
+            </div>
+
+            <!-- HOME VIEW -->
+            <section id="view-home" class="view-section active">
+                <div class="tabloid-grid" id="main-grid">
+                    <!-- Dynamic Content goes here via JS -->
+                </div>
+
+                <!-- Promo Banner Bottom -->
+                <div class="promo-banner cursor-pointer" onclick="navigateTo('editor')">
+                    <div class="font-headline text-4xl leading-none">SUBMIT YOUR STORY</div>
+                    <div class="bg-white text-black border-2 border-black p-2 font-bold text-sm hidden md:block">
+                        Be part of the culture.<br>Drop your truth.
+                    </div>
+                    <div class="font-headline text-4xl leading-none">NEXT PAGE <i class="ph-bold ph-arrow-right"></i></div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden text-center py-20 bg-white border-b var(--border-heavy)">
+                    <i class="ph-bold ph-newspaper text-6xl mb-4"></i>
+                    <p class="font-headline text-4xl text-gray-400">NO DROPS YET.</p>
+                    <button onclick="navigateTo('editor')" class="brutal-btn mt-6">Be The First</button>
+                </div>
+            </section>
+
+            <!-- ARTICLE READING VIEW -->
+            <section id="view-article" class="view-section">
+                <div id="article-reader-content" class="p-4 md:p-8">
+                    <!-- Dynamic Article Content -->
+                </div>
+            </section>
+
+            <!-- EDITOR VIEW -->
+            <section id="view-editor" class="view-section">
+                <div class="p-6 md:p-10 border-b var(--border-heavy)">
+                    <div class="font-headline text-5xl mb-6 text-center uppercase tracking-tight border-b-4 border-black pb-4">
+                        Drop The Truth
+                    </div>
+                    
+                    <form id="editor-form" class="space-y-6 max-w-3xl mx-auto">
+                        <div class="border-l-8 border-[var(--tabloid-red)] pl-4">
+                            <label class="block font-headline text-2xl uppercase mb-1">Massive Headline</label>
+                            <input type="text" id="edit-title" required class="brutal-input text-2xl font-bold" placeholder="WHO TF IS...">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border-l-8 border-black pl-4">
+                                <label class="block font-headline text-xl uppercase mb-1">Category / Tag</label>
+                                <select id="edit-category" class="brutal-input">
+                                    <option value="Exclusive">EXCLUSIVE</option>
+                                    <option value="Culture">CULTURE</option>
+                                    <option value="Street">STREET</option>
+                                    <option value="Music">MUSIC</option>
+                                    <option value="Truth">THE TRUTH</option>
+                                </select>
+                            </div>
+                            <div class="border-l-8 border-black pl-4">
+                                <label class="block font-headline text-xl uppercase mb-1">Image URL</label>
+                                <input type="url" id="edit-image" class="brutal-input" placeholder="https://...">
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-8 border-[var(--tabloid-blue)] pl-4">
+                            <label class="block font-headline text-2xl uppercase mb-1">The Story</label>
+                            <textarea id="edit-content" required rows="10" class="brutal-input font-body text-lg resize-y" placeholder="This ain't just some random text..."></textarea>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t-4 border-black">
+                            <button type="button" onclick="navigateTo('home')" class="brutal-btn bg-white !text-black hover:bg-gray-200">Scrap It</button>
+                            <button type="submit" id="submit-btn" class="brutal-btn red flex-grow sm:flex-grow-0">
+                                Publish Drop <i class="ph-bold ph-upload-simple ml-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-black text-white p-4 flex flex-col md:flex-row justify-between items-center font-bold uppercase text-sm">
+            <div>&copy; 2026 DYORNAL BY SHUN. THE REALEST NEVER WAIT.</div>
+            <div class="text-gray-400 mt-2 md:mt-0">Powered by Firebase Cloud</div>
+        </div>
+
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
+        <div class="modal-box w-[90%] max-w-md p-6 relative" id="profile-modal-content">
+            <!-- Decorative Sticker -->
+            <div class="absolute -top-6 -right-6 bg-[var(--tabloid-yellow)] border-4 border-black font-headline p-3 transform rotate-12 text-2xl uppercase shadow-[4px_4px_0_#000]">
+                Sign In!
+            </div>
+            
+            <h2 class="font-headline text-4xl uppercase mb-2 border-b-4 border-black pb-2">Identify Yourself</h2>
+            <p class="font-body text-gray-700 mb-6 font-bold">You gotta have a name to drop truth. Enter your moniker below.</p>
+            
+            <input type="text" id="pen-name-input" class="brutal-input mb-6 text-xl" placeholder="Enter Pen Name...">
+            
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('profile-modal')" class="brutal-btn bg-gray-300 !text-black !shadow-[4px_4px_0_#000]" id="profile-cancel-btn">Nah</button>
+                <button onclick="saveProfile()" class="brutal-btn red">Set Name</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="msg-modal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
+        <div class="modal-box w-[90%] max-w-sm p-6 text-center border-[8px] border-[var(--tabloid-red)]">
+            <h2 id="msg-title" class="font-headline text-4xl uppercase mb-2 text-[var(--tabloid-red)]">ALERT</h2>
+            <p id="msg-text" class="font-subhead text-xl font-bold mb-6 uppercase">Message goes here.</p>
+            <div id="msg-actions" class="flex justify-center gap-3">
+                <button onclick="closeModal('msg-modal')" class="brutal-btn">Aight</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'dyornal-shun-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "dummy", authDomain: "dummy", projectId: "dummy", storageBucket: "dummy", messagingSenderId: "dummy", appId: "dummy"
+        };
+        
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch(e) { console.error("Firebase init failed", e); }
+
+        // State
+        let currentUser = null;
+        let userProfile = { penName: null };
+        let currentArticles = [];
+        let unsubscribeArticles = null;
+
+        // Path Generators
+        const getArticlesCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'articles');
+        const getProfileDoc = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'profile_data');
+
+        // Set Dateline Month
+        const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const d = new Date();
+        document.getElementById('current-date').textContent = `${months[d.getMonth()]} ${d.getFullYear()}`;
+
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+                showMessage("NETWORK ERROR", "Can't connect to the streets.");
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await fetchUserProfile(user.uid);
+                startListeningToArticles();
+            } else {
+                currentUser = null;
+                if(unsubscribeArticles) unsubscribeArticles();
+            }
+        });
+
+        async function fetchUserProfile(uid) {
+            try {
+                const docSnap = await getDoc(getProfileDoc(uid));
+                if (docSnap.exists()) {
+                    userProfile = docSnap.data();
+                } else {
+                    userProfile = { penName: null }; 
+                }
+                updateNavUI();
+            } catch (e) { console.error("Error fetching profile", e); }
+        }
+
+        window.saveProfile = async function() {
+            const input = document.getElementById('pen-name-input').value.trim();
+            if (!input) return;
+
+            try {
+                const newProfile = { penName: input, updatedAt: serverTimestamp() };
+                await setDoc(getProfileDoc(currentUser.uid), newProfile);
+                userProfile.penName = input;
+                updateNavUI();
+                closeModal('profile-modal');
+                
+                if(window.pendingNavigation === 'editor') {
+                    navigateTo('editor');
+                    window.pendingNavigation = null;
+                }
+            } catch (e) {
+                showMessage("ERROR", "Couldn't save name.");
+            }
+        }
+
+        function startListeningToArticles() {
+            const colRef = getArticlesCol();
+            
+            unsubscribeArticles = onSnapshot(colRef, (snapshot) => {
+                const articles = [];
+                snapshot.forEach(doc => {
+                    articles.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by date descending
+                articles.sort((a, b) => {
+                    const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+                    const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA;
+                });
+                
+                currentArticles = articles;
+                renderHomeFeed();
+                
+                const loader = document.getElementById('global-loader');
+                if(loader) loader.classList.add('hidden');
+            }, (error) => {
+                console.error("Error listening: ", error);
+            });
+        }
+
+        function renderHomeFeed() {
+            const gridContainer = document.getElementById('main-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (currentArticles.length === 0) {
+                gridContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            const featured = currentArticles[0];
+            const sideArticles = currentArticles.slice(1, 4); // Take up to 3 for the sidebar
+
+            // Featured Article HTML (Left Column)
+            let html = `
+                <div class="col-left p-6 md:p-8 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="viewArticle('${featured.id}')">
+                    <div>
+                        <div class="font-headline text-[clamp(3rem,8vw,6rem)] leading-[0.85] tracking-tighter uppercase mb-4 break-words">
+                            ${escapeHTML(featured.title)}
+                        </div>
+                        <div class="font-body text-xl md:text-2xl font-bold mb-6 border-l-8 border-[var(--tabloid-red)] pl-4">
+                            ${escapeHTML(featured.content.substring(0, 150))}...
+                        </div>
+                    </div>
+                    
+                    <div class="relative border-[6px] border-black mt-4">
+                        <div class="sticker-wrapper hidden md:block">
+                            <div class="sticker">OUT<br>NOW!!!</div>
+                        </div>
+                        <img src="${escapeHTML(featured.imageUrl)}" class="w-full h-[400px] object-cover grayscale contrast-125" alt="Cover" onerror="this.src='https://placehold.co/800x600/000/fff?text=IMAGE+MISSING'">
+                        <div class="absolute bottom-0 left-0 bg-black text-white font-subhead p-2 uppercase text-sm border-t-4 border-r-4 border-black">
+                            REP: ${escapeHTML(featured.authorName)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Sidebar Articles HTML (Right Column)
+            html += `<div class="flex flex-col bg-white">`;
+            
+            if (sideArticles.length > 0) {
+                sideArticles.forEach((article, index) => {
+                    html += `
+                        <div class="article-block flex-grow cursor-pointer group hover:bg-black hover:text-white transition-colors" onclick="viewArticle('${article.id}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-[var(--tabloid-red)] text-white font-subhead px-2 py-1 text-xs font-bold uppercase border-2 border-black group-hover:border-white">
+                                    ${escapeHTML(article.category)}
+                                </span>
+                                <span class="font-subhead text-sm font-bold opacity-70 group-hover:opacity-100">${formatDate(article.createdAt)}</span>
+                            </div>
+                            <img src="${escapeHTML(article.imageUrl)}" class="w-full h-32 object-cover border-4 border-black mb-3 grayscale group-hover:grayscale-0 transition-all" alt="thumb">
+                            <h3 class="font-headline text-3xl uppercase leading-none mb-2 break-words group-hover:text-[var(--tabloid-yellow)]">${escapeHTML(article.title)}</h3>
+                            <p class="font-body text-sm line-clamp-3">${escapeHTML(article.content)}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                 html += `
+                    <div class="p-6 h-full flex flex-col justify-center items-center text-center opacity-50 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#000_10px,#000_12px)]">
+                        <div class="bg-white p-4 border-4 border-black">
+                            <span class="font-headline text-2xl">AD SPACE AVAILABLE</span>
+                        </div>
+                    </div>
+                 `;
+            }
+            
+            html += `</div>`; // Close sidebar column
+
+            // If there are more than 4 total, add a bottom row that spans full width
+            const bottomArticles = currentArticles.slice(4);
+            if (bottomArticles.length > 0) {
+                html += `
+                    <div class="col-span-1 md:col-span-2 border-t-[6px] border-black bg-black text-white p-6">
+                        <h2 class="font-headline text-4xl text-[var(--tabloid-yellow)] mb-6 uppercase border-b-4 border-white pb-2">More from the streets</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                `;
+                bottomArticles.forEach(article => {
+                    html += `
+                        <div class="cursor-pointer group" onclick="viewArticle('${article.id}')">
+                            <h3 class="font-headline text-2xl uppercase leading-tight mb-2 group-hover:text-[var(--tabloid-red)] transition-colors">${escapeHTML(article.title)}</h3>
+                            <div class="font-subhead text-xs text-gray-400 mb-2 uppercase border-l-4 border-[var(--tabloid-red)] pl-2">BY ${escapeHTML(article.authorName)}</div>
+                            <p class="font-body text-sm text-gray-300 line-clamp-2">${escapeHTML(article.content)}</p>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            gridContainer.innerHTML = html;
+        }
+
+        window.viewArticle = function(docId) {
+            const article = currentArticles.find(a => a.id === docId);
+            if (!article) return;
+
+            const readerContent = document.getElementById('article-reader-content');
+            const safeContent = escapeHTML(article.content).replace(/\n/g, '<br><br>');
+            const isOwner = currentUser && currentUser.uid === article.authorId;
+            
+            const deleteBtnHtml = isOwner ? `
+                <button onclick="deleteArticle('${article.id}')" class="brutal-btn !bg-white !text-[var(--tabloid-red)] !border-[var(--tabloid-red)] !shadow-[4px_4px_0_var(--tabloid-red)] !text-sm mt-4 md:mt-0">
+                    <i class="ph-bold ph-trash"></i> DELETE DROP
+                </button>
+            ` : '';
+
+            readerContent.innerHTML = `
+                <button onclick="navigateTo('home')" class="font-headline text-2xl uppercase hover:text-[var(--tabloid-red)] mb-6 flex items-center transition-colors">
+                    <i class="ph-bold ph-arrow-left mr-2"></i> BACK
+                </button>
+                
+                <article class="max-w-4xl mx-auto border-[6px] border-black bg-white shadow-[15px_15px_0_#000]">
+                    <header class="border-b-[6px] border-black p-6 md:p-10 bg-[var(--tabloid-yellow)] relative overflow-hidden">
+                        <div class="bg-black text-white font-subhead inline-block px-3 py-1 text-sm font-bold uppercase mb-4 border-2 border-black">
+                            ${escapeHTML(article.category)}
+                        </div>
+                        <h1 class="font-headline text-[clamp(3rem,8vw,6rem)] leading-[0.9] uppercase tracking-tight break-words relative z-10">
+                            ${escapeHTML(article.title)}
+                        </h1>
+                    </header>
+                    
+                    <div class="p-6 md:p-10 flex flex-col md:flex-row gap-8">
+                        <div class="md:w-1/3 flex flex-col gap-6">
+                            <div class="border-[6px] border-black p-2 transform -rotate-2 bg-white">
+                                <img src="${escapeHTML(article.imageUrl)}" class="w-full h-auto object-cover grayscale contrast-125 border-4 border-black" alt="Article Image" onerror="this.src='https://placehold.co/400x400/000/fff?text=NO+IMAGE'">
+                            </div>
+                            
+                            <div class="border-t-4 border-b-4 border-black py-4 font-subhead uppercase font-bold text-lg">
+                                <div class="text-gray-500 text-sm">DROPPED BY</div>
+                                <div class="text-2xl">${escapeHTML(article.authorName)}</div>
+                                <div class="text-gray-500 text-sm mt-2">DATE</div>
+                                <div>${formatDate(article.createdAt)}</div>
+                            </div>
+                            
+                            ${deleteBtnHtml}
+                        </div>
+                        
+                        <div class="md:w-2/3">
+                            <div class="article-body-format font-body text-lg md:text-xl font-bold">
+                                <span class="text-6xl font-headline text-[var(--tabloid-red)] leading-none float-left mr-2 pt-2">${safeContent.charAt(0)}</span>${safeContent.slice(1)}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+            
+            navigateTo('article');
+            window.scrollTo(0, 0);
+        }
+
+        window.submitArticle = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+            if (!userProfile.penName) {
+                window.pendingNavigation = 'editor';
+                openProfileModal();
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'UPLOADING...';
+            btn.disabled = true;
+
+            const title = document.getElementById('edit-title').value.trim();
+            const category = document.getElementById('edit-category').value;
+            const imageUrl = document.getElementById('edit-image').value.trim();
+            const content = document.getElementById('edit-content').value.trim();
+            const fallbackImage = `https://placehold.co/800x800/000000/ffffff?text=${encodeURIComponent(category.toUpperCase())}`;
+
+            try {
+                await addDoc(getArticlesCol(), {
+                    title,
+                    category,
+                    imageUrl: imageUrl || fallbackImage,
+                    content,
+                    authorId: currentUser.uid,
+                    authorName: userProfile.penName,
+                    createdAt: serverTimestamp()
+                });
+                
+                document.getElementById('editor-form').reset();
+                navigateTo('home');
+            } catch (error) {
+                showMessage("ERROR", "Couldn't publish. System issue.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        window.deleteArticle = async function(docId) {
+            if (!currentUser) return;
+            
+            const msgActions = document.getElementById('msg-actions');
+            msgActions.innerHTML = `
+                <button onclick="closeModal('msg-modal')" class="brutal-btn bg-gray-300 !text-black">CANCEL</button>
+                <button id="confirm-delete-btn" class="brutal-btn red">DELETE</button>
+            `;
+            
+            document.getElementById('confirm-delete-btn').onclick = async () => {
+                closeModal('msg-modal');
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'articles', docId));
+                    navigateTo('home');
+                } catch (e) {
+                    showMessage("ERROR", "Couldn't delete.");
+                }
+            };
+            
+            showMessage("HOLD UP", "You really want to wipe this record?");
+        }
+
+        document.getElementById('editor-form').addEventListener('submit', submitArticle);
+
+        // Utilities
+        window.navigateTo = function(viewId) {
+            if (viewId === 'editor') {
+                if (!currentUser) {
+                    showMessage("LOCKED", "You gotta log in to drop info.");
+                    return;
+                }
+                if (!userProfile.penName) {
+                    window.pendingNavigation = 'editor';
+                    openProfileModal();
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            
+            if(viewId === 'home') window.scrollTo(0,0);
+        }
+
+        function updateNavUI() {
+            const navUser = document.getElementById('nav-username');
+            if (userProfile && userProfile.penName) {
+                navUser.textContent = userProfile.penName;
+                document.querySelector('.nav-btn.right-align').classList.remove('bg-[var(--tabloid-red)]');
+                document.querySelector('.nav-btn.right-align').classList.add('bg-black');
+            } else {
+                navUser.textContent = "LOG IN";
+            }
+        }
+
+        window.openProfileModal = function() {
+            if(userProfile.penName) document.getElementById('pen-name-input').value = userProfile.penName;
+            
+            if(userProfile.penName === null) {
+                document.getElementById('profile-cancel-btn').classList.add('hidden');
+            } else {
+                document.getElementById('profile-cancel-btn').classList.remove('hidden');
+            }
+
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        window.showMessage = function(title, text) {
+            document.getElementById('msg-title').textContent = title;
+            document.getElementById('msg-text').textContent = text;
+            
+            document.getElementById('msg-actions').innerHTML = `
+                <button onclick="closeModal('msg-modal')" class="brutal-btn">Aight</button>
+            `;
+            document.getElementById('msg-modal').classList.remove('hidden');
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return "JUST NOW";
+            const date = timestamp.toDate();
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+        }
+
+        function escapeHTML(str) {
+            if (!str) return "";
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
+
+        // Start App
+        initAuth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dyornal by Shun</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Importing Tabloid/Streetwear Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Your Real Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3lxmL3NZ2kSQFwVdZq9-Ts851bYIUjQ4",
+            authDomain: "dyornal-51bcc.firebaseapp.com",
+            databaseURL: "https://dyornal-51bcc-default-rtdb.firebaseio.com",
+            projectId: "dyornal-51bcc",
+            storageBucket: "dyornal-51bcc.firebasestorage.app",
+            messagingSenderId: "890675458565",
+            appId: "1:890675458565:web:aef75e86ee2b7043f6226c",
+            measurementId: "G-7EXHNRT0PB"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.auth = auth;
+        window.firebaseDependencies = { collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, orderBy };
+
+        // Auto sign-in anonymously so users can post instantly
+        signInAnonymously(auth).then(() => {
+            console.log("Connected to Dyornal Cloud Database successfully.");
+            initApp();
+        }).catch((error) => {
+            console.error("Auth error:", error);
+            showMsg("Connection Error", "Could not connect to the streets. Check console.");
+        });
+    </script>
+
+    <style>
+        :root {
+            --tabloid-red: #da0000;
+            --tabloid-blue: #12348c;
+            --tabloid-yellow: #fde015;
+            --border-heavy: 6px solid #000;
+            --border-med: 3px solid #000;
+            --border-light: 1px solid #000;
+        }
+
+        body {
+            background-color: #e5e5e5;
+            font-family: 'Oswald', sans-serif;
+            color: #000;
+            overflow-x: hidden;
+        }
+        
+        .font-headline { font-family: 'Anton', sans-serif; }
+        .font-subhead { font-family: 'Oswald', sans-serif; }
+        .font-body { font-family: 'PT Serif', serif; }
+
+        .main-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 20px auto;
+            background: #fff;
+            border: var(--border-heavy);
+            box-shadow: 10px 10px 0px rgba(0,0,0,1);
+            position: relative;
+        }
+
+        .dateline {
+            border-bottom: var(--border-med);
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-items: center;
+        }
+
+        .header-banner {
+            border-bottom: var(--border-heavy);
+            position: relative;
+            padding: 10px 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .logo-text {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(6rem, 15vw, 12rem);
+            color: var(--tabloid-red);
+            line-height: 0.8;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .by-shun-badge {
+            background-color: var(--tabloid-blue);
+            color: white;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: clamp(1rem, 3vw, 2rem);
+            padding: 5px 20px;
+            border: var(--border-med);
+            transform: rotate(-3deg);
+            margin-top: -20px;
+            z-index: 3;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        }
+
+        .nav-bar {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-bottom: var(--border-heavy);
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-right: 2px solid #333;
+        }
+        .nav-btn:hover { background-color: var(--tabloid-red); color: white; }
+        .nav-btn.right-align { border-right: none; border-left: 2px solid #333; }
+
+        .tabloid-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            border-bottom: var(--border-heavy);
+        }
+        @media (min-width: 768px) {
+            .tabloid-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .col-left { border-right: var(--border-heavy); }
+        .article-block { border-bottom: var(--border-med); padding: 15px; }
+        .article-block:last-child { border-bottom: none; }
+        
+        .promo-banner {
+            background-color: var(--tabloid-red);
+            color: white;
+            padding: 10px;
+            text-transform: uppercase;
+            border-top: var(--border-heavy);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sticker-wrapper {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            z-index: 10;
+            transform: rotate(15deg);
+        }
+        .sticker {
+            background: var(--tabloid-yellow);
+            color: #000;
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            padding: 15px 10px;
+            font-size: 1.5rem;
+            line-height: 1;
+            text-align: center;
+            border: var(--border-med);
+            box-shadow: 3px 3px 0 #000;
+        }
+        
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: punchIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes punchIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .brutal-input {
+            width: 100%;
+            border: var(--border-med);
+            padding: 10px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            background: #f4f4f4;
+            margin-top: 5px;
+        }
+        .brutal-input:focus { outline: none; background: #fff; border-color: var(--tabloid-red); }
+        
+        .brutal-btn {
+            background: #000;
+            color: #fff;
+            border: var(--border-med);
+            padding: 10px 20px;
+            font-family: 'Anton', sans-serif;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--tabloid-red);
+            transition: transform 0.1s;
+        }
+        .brutal-btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--tabloid-red); }
+        .brutal-btn.red { background: var(--tabloid-red); box-shadow: 4px 4px 0 #000; }
+        .brutal-btn.red:hover { box-shadow: 2px 2px 0 #000; }
+        
+        .article-body-format {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            font-size: 1.1rem;
+        }
+
+        .modal-overlay {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #fff;
+            border: var(--border-heavy);
+            box-shadow: 10px 10px 0 var(--tabloid-red);
+        }
+        
+        ::selection { background: var(--tabloid-yellow); color: #000; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="main-container">
+        
+        <div class="dateline">
+            <div><span class="text-[var(--tabloid-red)] mr-2">▶</span> <span id="current-date">OCTOBER 2026</span></div>
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-star"></i>
+                THE REALEST DROP
+                <i class="ph-fill ph-star"></i>
+            </div>
+        </div>
+
+        <div class="header-banner">
+            <h1 class="logo-text">Dyornal</h1>
+            <div class="by-shun-badge">BY SHUN</div>
+            
+            <div class="absolute bottom-0 left-0 w-full bg-[var(--tabloid-blue)] text-white p-2 border-t-[3px] border-black flex justify-between items-center px-4 overflow-hidden">
+                <div class="font-headline text-2xl uppercase tracking-wide z-10 whitespace-nowrap">IS THIS PLATFORM VALID??? <span class="font-subhead italic text-sm normal-case ml-2 text-yellow-300">but we keep it real tho</span></div>
+                <div class="hidden md:block w-32 h-32 bg-[var(--tabloid-red)] rounded-full absolute -right-10 -bottom-10 border-4 border-black z-0"></div>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <div class="flex">
+                <div class="nav-btn" onclick="navigateTo('home')">Front Page</div>
+                <div class="nav-btn text-[var(--tabloid-yellow)]" onclick="navigateTo('editor')">Drop Info</div>
+            </div>
+            <div class="nav-btn right-align flex items-center bg-[var(--tabloid-red)]" onclick="openProfileModal()">
+                <i class="ph-bold ph-user mr-2"></i> <span id="nav-username">SET NAME</span>
+            </div>
+        </div>
+
+        <div class="min-h-[600px] bg-white relative">
+            
+            <!-- HOME VIEW -->
+            <section id="view-home" class="view-section active">
+                <div class="tabloid-grid" id="main-grid">
+                    <!-- Dynamic Content -->
+                </div>
+
+                <div class="promo-banner cursor-pointer" onclick="navigateTo('editor')">
+                    <div class="font-headline text-4xl leading-none">SUBMIT YOUR STORY</div>
+                    <div class="bg-white text-black border-2 border-black p-2 font-bold text-sm hidden md:block">
+                        Be part of the culture.<br>Drop your truth.
+                    </div>
+                    <div class="font-headline text-4xl leading-none">NEXT PAGE <i class="ph-bold ph-arrow-right"></i></div>
+                </div>
+
+                <div id="empty-state" class="hidden text-center py-20 bg-white border-b var(--border-heavy)">
+                    <i class="ph-bold ph-newspaper text-6xl mb-4"></i>
+                    <p class="font-headline text-4xl text-gray-400">NO DROPS YET.</p>
+                    <button onclick="navigateTo('editor')" class="brutal-btn mt-6">Be The First</button>
+                </div>
+            </section>
+
+            <!-- ARTICLE READING VIEW -->
+            <section id="view-article" class="view-section">
+                <div id="article-reader-content" class="p-4 md:p-8">
+                    <!-- Dynamic Article Content -->
+                </div>
+            </section>
+
+            <!-- EDITOR VIEW -->
+            <section id="view-editor" class="view-section">
+                <div class="p-6 md:p-10 border-b var(--border-heavy)">
+                    <div class="font-headline text-5xl mb-6 text-center uppercase tracking-tight border-b-4 border-black pb-4">
+                        Drop The Truth
+                    </div>
+                    
+                    <form id="editor-form" class="space-y-6 max-w-3xl mx-auto">
+                        <div class="border-l-8 border-[var(--tabloid-red)] pl-4">
+                            <label class="block font-headline text-2xl uppercase mb-1">Massive Headline</label>
+                            <input type="text" id="edit-title" required class="brutal-input text-2xl font-bold" placeholder="WHO TF IS...">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="border-l-8 border-black pl-4">
+                                <label class="block font-headline text-xl uppercase mb-1">Category / Tag</label>
+                                <select id="edit-category" class="brutal-input">
+                                    <option value="Exclusive">EXCLUSIVE</option>
+                                    <option value="Culture">CULTURE</option>
+                                    <option value="Street">STREET</option>
+                                    <option value="Music">MUSIC</option>
+                                    <option value="Truth">THE TRUTH</option>
+                                </select>
+                            </div>
+                            <div class="border-l-8 border-black pl-4">
+                                <label class="block font-headline text-xl uppercase mb-1">Image URL</label>
+                                <input type="url" id="edit-image" class="brutal-input" placeholder="https://...">
+                            </div>
+                        </div>
+                        
+                        <div class="border-l-8 border-[var(--tabloid-blue)] pl-4">
+                            <label class="block font-headline text-2xl uppercase mb-1">The Story</label>
+                            <textarea id="edit-content" required rows="10" class="brutal-input font-body text-lg resize-y" placeholder="This ain't just some random text..."></textarea>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t-4 border-black">
+                            <button type="button" onclick="navigateTo('home')" class="brutal-btn bg-white !text-black hover:bg-gray-200">Scrap It</button>
+                            <button type="submit" id="submit-btn" class="brutal-btn red flex-grow sm:flex-grow-0">
+                                Publish Drop <i class="ph-bold ph-upload-simple ml-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </div>
+        
+        <div class="bg-black text-white p-4 flex flex-col md:flex-row justify-between items-center font-bold uppercase text-sm">
+            <div>&copy; 2026 DYORNAL BY SHUN. THE REALEST NEVER WAIT.</div>
+            <div class="text-gray-400 mt-2 md:mt-0">Powered by Firebase Cloud</div>
+        </div>
+
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profile-modal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
+        <div class="modal-box w-[90%] max-w-md p-6 relative">
+            <div class="absolute -top-6 -right-6 bg-[var(--tabloid-yellow)] border-4 border-black font-headline p-3 transform rotate-12 text-2xl uppercase shadow-[4px_4px_0_#000]">
+                Sign In!
+            </div>
+            
+            <h2 class="font-headline text-4xl uppercase mb-2 border-b-4 border-black pb-2">Identify Yourself</h2>
+            <p class="font-body text-gray-700 mb-6 font-bold">You gotta have a name to drop truth. Enter your moniker below.</p>
+            
+            <input type="text" id="pen-name-input" class="brutal-input mb-6 text-xl" placeholder="Enter Pen Name...">
+            
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('profile-modal')" class="brutal-btn bg-gray-300 !text-black !shadow-[4px_4px_0_#000]">Nah</button>
+                <button onclick="saveProfile()" class="brutal-btn red">Set Name</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSAGE MODAL -->
+    <div id="msg-modal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
+        <div class="modal-box w-[90%] max-w-sm p-6 text-center border-[8px] border-[var(--tabloid-red)]">
+            <h2 id="msg-title" class="font-headline text-4xl uppercase mb-2 text-[var(--tabloid-red)]">ALERT</h2>
+            <p id="msg-text" class="font-subhead text-xl font-bold mb-6 uppercase">Message goes here.</p>
+            <div id="msg-actions" class="flex justify-center gap-3">
+                <button onclick="closeModal('msg-modal')" class="brutal-btn">Aight</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentArticles = [];
+        let penName = localStorage.getItem('dyornal_penname') || '';
+
+        const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const d = new Date();
+        document.getElementById('current-date').textContent = `${months[d.getMonth()]} ${d.getFullYear()}`;
+
+        function initApp() {
+            updateNavUI();
+            setupRealtimeListener();
+        }
+
+        function updateNavUI() {
+            const navUser = document.getElementById('nav-username');
+            if (penName) {
+                navUser.textContent = penName;
+            } else {
+                navUser.textContent = "SET NAME";
+            }
+        }
+
+        window.saveProfile = function() {
+            const input = document.getElementById('pen-name-input').value.trim();
+            if (!input) return;
+            penName = input;
+            localStorage.setItem('dyornal_penname', penName);
+            updateNavUI();
+            closeModal('profile-modal');
+            
+            if(window.pendingNavigation === 'editor') {
+                navigateTo('editor');
+                window.pendingNavigation = null;
+            }
+        }
+
+        function setupRealtimeListener() {
+            const { collection, onSnapshot, query, orderBy } = window.firebaseDependencies;
+            const q = query(collection(window.db, "dyornal_articles"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                currentArticles = [];
+                snapshot.forEach((doc) => {
+                    currentArticles.push({ id: doc.id, ...doc.data() });
+                });
+                renderHomeFeed();
+            }, (error) => {
+                console.error("Error loading articles:", error);
+                // Fallback demo article if collection is empty or rules block it temporarily
+                if(currentArticles.length === 0) {
+                    currentArticles = [{
+                        id: 'demo-1',
+                        title: 'DYORNAL CLOUD LIVE ON THE WEB',
+                        category: 'EXCLUSIVE',
+                        imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
+                        content: 'The database is active. Drop your first story and claim your stake in the culture.',
+                        authorName: 'Shun',
+                        date: 'OCTOBER 2026'
+                    }];
+                    renderHomeFeed();
+                }
+            });
+        }
+
+        function renderHomeFeed() {
+            const gridContainer = document.getElementById('main-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (currentArticles.length === 0) {
+                gridContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            const featured = currentArticles[0];
+            const sideArticles = currentArticles.slice(1, 4);
+
+            let html = `
+                <div class="col-left p-6 md:p-8 flex flex-col justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="viewArticle('${featured.id}')">
+                    <div>
+                        <div class="font-headline text-[clamp(3rem,8vw,6rem)] leading-[0.85] tracking-tighter uppercase mb-4 break-words">
+                            ${escapeHTML(featured.title)}
+                        </div>
+                        <div class="font-body text-xl md:text-2xl font-bold mb-6 border-l-8 border-[var(--tabloid-red)] pl-4">
+                            ${escapeHTML(featured.content.substring(0, 150))}...
+                        </div>
+                    </div>
+                    
+                    <div class="relative border-[6px] border-black mt-4">
+                        <div class="sticker-wrapper hidden md:block">
+                            <div class="sticker">OUT<br>NOW!!!</div>
+                        </div>
+                        <img src="${escapeHTML(featured.imageUrl)}" class="w-full h-[400px] object-cover grayscale contrast-125" alt="Cover" onerror="this.src='https://placehold.co/800x600/000/fff?text=IMAGE+MISSING'">
+                        <div class="absolute bottom-0 left-0 bg-black text-white font-subhead p-2 uppercase text-sm border-t-4 border-r-4 border-black">
+                            REP: ${escapeHTML(featured.authorName)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            html += `<div class="flex flex-col bg-white">`;
+            
+            if (sideArticles.length > 0) {
+                sideArticles.forEach((article) => {
+                    html += `
+                        <div class="article-block flex-grow cursor-pointer group hover:bg-black hover:text-white transition-colors" onclick="viewArticle('${article.id}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-[var(--tabloid-red)] text-white font-subhead px-2 py-1 text-xs font-bold uppercase border-2 border-black group-hover:border-white">
+                                    ${escapeHTML(article.category)}
+                                </span>
+                                <span class="font-subhead text-sm font-bold opacity-70 group-hover:opacity-100">${escapeHTML(article.date)}</span>
+                            </div>
+                            <img src="${escapeHTML(article.imageUrl)}" class="w-full h-32 object-cover border-4 border-black mb-3 grayscale group-hover:grayscale-0 transition-all" alt="thumb" onerror="this.src='https://placehold.co/400x300/000/fff?text=IMAGE'">
+                            <h3 class="font-headline text-3xl uppercase leading-none mb-2 break-words group-hover:text-[var(--tabloid-yellow)]">${escapeHTML(article.title)}</h3>
+                            <p class="font-body text-sm line-clamp-3">${escapeHTML(article.content)}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                 html += `
+                    <div class="p-6 h-full flex flex-col justify-center items-center text-center opacity-50">
+                        <div class="bg-white p-4 border-4 border-black">
+                            <span class="font-headline text-2xl">AD SPACE AVAILABLE</span>
+                        </div>
+                    </div>
+                 `;
+            }
+            
+            html += `</div>`;
+            gridContainer.innerHTML = html;
+        }
+
+        window.viewArticle = function(docId) {
+            const article = currentArticles.find(a => a.id === docId);
+            if (!article) return;
+
+            const readerContent = document.getElementById('article-reader-content');
+            const safeContent = escapeHTML(article.content).replace(/\n/g, '<br><br>');
+            
+            readerContent.innerHTML = `
+                <button onclick="navigateTo('home')" class="font-headline text-2xl uppercase hover:text-[var(--tabloid-red)] mb-6 flex items-center transition-colors">
+                    <i class="ph-bold ph-arrow-left mr-2"></i> BACK
+                </button>
+                
+                <article class="max-w-4xl mx-auto border-[6px] border-black bg-white shadow-[15px_15px_0_#000]">
+                    <header class="border-b-[6px] border-black p-6 md:p-10 bg-[var(--tabloid-yellow)] relative overflow-hidden">
+                        <div class="bg-black text-white font-subhead inline-block px-3 py-1 text-sm font-bold uppercase mb-4 border-2 border-black">
+                            ${escapeHTML(article.category)}
+                        </div>
+                        <h1 class="font-headline text-[clamp(3rem,8vw,6rem)] leading-[0.9] uppercase tracking-tight break-words relative z-10">
+                            ${escapeHTML(article.title)}
+                        </h1>
+                    </header>
+                    
+                    <div class="p-6 md:p-10 flex flex-col md:flex-row gap-8">
+                        <div class="md:w-1/3 flex flex-col gap-6">
+                            <div class="border-[6px] border-black p-2 transform -rotate-2 bg-white">
+                                <img src="${escapeHTML(article.imageUrl)}" class="w-full h-auto object-cover grayscale contrast-125 border-4 border-black" alt="Article Image" onerror="this.src='https://placehold.co/400x400/000/fff?text=NO+IMAGE'">
+                            </div>
+                            
+                            <div class="border-t-4 border-b-4 border-black py-4 font-subhead uppercase font-bold text-lg">
+                                <div class="text-gray-500 text-sm">DROPPED BY</div>
+                                <div class="text-2xl">${escapeHTML(article.authorName)}</div>
+                                <div class="text-gray-500 text-sm mt-2">DATE</div>
+                                <div>${escapeHTML(article.date)}</div>
+                            </div>
+                            
+                            <button onclick="deleteArticle('${article.id}')" class="brutal-btn !bg-white !text-[var(--tabloid-red)] !border-[var(--tabloid-red)] !shadow-[4px_4px_0_var(--tabloid-red)] !text-sm">
+                                <i class="ph-bold ph-trash"></i> DELETE DROP
+                            </button>
+                        </div>
+                        
+                        <div class="md:w-2/3">
+                            <div class="article-body-format font-body text-lg md:text-xl font-bold">
+                                <span class="text-6xl font-headline text-[var(--tabloid-red)] leading-none float-left mr-2 pt-2">${safeContent.charAt(0)}</span>${safeContent.slice(1)}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+            
+            navigateTo('article');
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('editor-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!penName) {
+                window.pendingNavigation = 'editor';
+                openProfileModal();
+                return;
+            }
+
+            const title = document.getElementById('edit-title').value.trim();
+            const category = document.getElementById('edit-category').value;
+            const imageUrl = document.getElementById('edit-image').value.trim();
+            const content = document.getElementById('edit-content').value.trim();
+            const fallbackImage = `https://placehold.co/800x800/000000/ffffff?text=${encodeURIComponent(category.toUpperCase())}`;
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.textContent = "DROPPING...";
+
+            try {
+                const { collection, addDoc } = window.firebaseDependencies;
+                await addDoc(collection(window.db, "dyornal_articles"), {
+                    title,
+                    category,
+                    imageUrl: imageUrl || fallbackImage,
+                    content,
+                    authorName: penName,
+                    date: `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
+                    createdAt: Date.now()
+                });
+
+                document.getElementById('editor-form').reset();
+                navigateTo('home');
+            } catch (err) {
+                console.error("Error adding document: ", err);
+                showMsg("Failed to Drop", "Make sure your Firestore database rules allow write access!");
+            } finally {
+                submitBtn.innerHTML = `Publish Drop <i class="ph-bold ph-upload-simple ml-2"></i>`;
+            }
+        });
+
+        window.deleteArticle = async function(docId) {
+            if(!confirm("Are you sure you want to scrap this drop?")) return;
+            try {
+                const { doc, deleteDoc } = window.firebaseDependencies;
+                await deleteDoc(doc(window.db, "dyornal_articles", docId));
+                navigateTo('home');
+            } catch (err) {
+                console.error("Error deleting:", err);
+                showMsg("Error", "Could not delete article.");
+            }
+        }
+
+        window.navigateTo = function(viewId) {
+            if (viewId === 'editor' && !penName) {
+                window.pendingNavigation = 'editor';
+                openProfileModal();
+                return;
+            }
+
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        window.openProfileModal = function() {
+            if(penName) document.getElementById('pen-name-input').value = penName;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function showMsg(title, text) {
+            document.getElementById('msg-title').textContent = title;
+            document.getElementById('msg-text').textContent = text;
+            document.getElementById('msg-modal').classList.remove('hidden');
+        }
+
+        function escapeHTML(str) {
+            if (!str) return "";
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
+    </script>
+</body>
+</html>
